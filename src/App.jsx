@@ -5,7 +5,7 @@ import "prismjs/themes/prism-tomorrow.css"
 import prism from "prismjs";
 import Editor from "react-simple-code-editor";
 import axios from 'axios'
-import Markdown  from "react-markdown"
+import Markdown from "react-markdown"
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css"
 import './App.css'
@@ -24,12 +24,17 @@ function App() {
     prism.highlightAll()
   }, []);
 
- async function reviewCode(){
-    const response=await axios.post('http://localhost:3000/ai/get-review',{code})
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ;
 
-    setReview(response.data)
-
- }
+  async function reviewCode() {
+    try {
+      const response = await axios.post(`${BACKEND_URL}/ai/get-review`, { code });
+      setReview(response.data);
+    } catch (error) {
+      console.error("Error fetching review:", error);
+      setReview("Error fetching review from backend.");
+    }
+  }
 
   return (
     <>
@@ -38,7 +43,7 @@ function App() {
 
           <div className="code">
 
-           <Editor
+            <Editor
               value={code}
               onValueChange={code => setCode(code)}
               highlight={code => prism.highlight(code, prism.languages.javascript, "javascript")}
@@ -56,13 +61,13 @@ function App() {
           </div>
 
 
-          <div  onClick={reviewCode} className="review">Review</div>
+          <div onClick={reviewCode} className="review">Review</div>
 
         </div>
 
         <div className="right">
           <Markdown
-          rehypePlugins={[rehypeHighlight]}
+            rehypePlugins={[rehypeHighlight]}
           >{review}</Markdown>
         </div>
 
@@ -70,7 +75,5 @@ function App() {
     </>
   )
 }
-
-
 
 export default App
